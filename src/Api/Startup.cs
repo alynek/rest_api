@@ -1,3 +1,4 @@
+using Api.Configuration;
 using DevIO.Data.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,8 +21,10 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
             services.AddDbContext<MeuDbContext>(opts => opts.UseNpgsql(Configuration.GetConnectionString("Connection")));
+            services.AddControllers();
+            services.AddAutoMapper(typeof(Startup));
+            services.ResolveDependencies();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
