@@ -15,15 +15,20 @@ namespace Api.Controllers
         private readonly IFornecedorRepository _fornecedorRepository; 
         private readonly IMapper _mapper;
         private readonly IFornecedorService _fornecedorService;
+        private readonly IEnderecoRepository _enderecoRepository;
 
         public FornecedoresController(IFornecedorRepository fornecedorRepository, IMapper mapper,
-        IFornecedorService fornecedorService)
+        IFornecedorService fornecedorService, IEnderecoRepository enderecoRepository, INotificador _notificador) : base(_notificador)
         {
             _fornecedorRepository = fornecedorRepository;
             _mapper = mapper;
             _fornecedorService = fornecedorService;
+            _enderecoRepository = enderecoRepository;
         }
 
+        
+
+        [HttpGet]
         public async Task<IEnumerable<FornecedorDto>> ObterTodos()
         {
             var fornecedores = _mapper.Map<IEnumerable<FornecedorDto>>(await _fornecedorRepository.ObterTodos());
@@ -42,13 +47,12 @@ namespace Api.Controllers
         [HttpPost]
         public async Task<ActionResult<FornecedorDto>> Adicionar(FornecedorDto fornecedorDto)
         {
-            if(!ModelState.IsValid) return BadRequest();
+            if(!ModelState.IsValid) return CustomResponse(ModelState);
 
             var fornecedor = _mapper.Map<Fornecedor>(fornecedorDto);
-            var result = await _fornecedorService.Adicionar(fornecedor);
+            await _fornecedorService.Adicionar(fornecedor);
 
-            if(!result) return BadRequest();
-            return Ok(fornecedor); 
+            return CustomResponse(fornecedorDto);
         }
 
         [HttpPut("{id:guid}")]
@@ -56,13 +60,12 @@ namespace Api.Controllers
         {
             if(id != fornecedorDto.Id) return BadRequest();
 
-            if(!ModelState.IsValid) return BadRequest();
+            if(!ModelState.IsValid) return CustomResponse(ModelState);
 
             var fornecedor = _mapper.Map<Fornecedor>(fornecedorDto);
-            var result = await _fornecedorService.Atualizar(fornecedor);
+            await _fornecedorService.Atualizar(fornecedor);
 
-            if(!result) return BadRequest();
-            return Ok(fornecedor); 
+            return CustomResponse(fornecedorDto); 
         }
 
         [HttpDelete]
@@ -70,10 +73,31 @@ namespace Api.Controllers
         {
             var fornecedor = _mapper.Map<Fornecedor>(await _fornecedorRepository.ObterFornecedorEndereco(id));
 
-            if(fornecedor is null) return BadRequest();
-            var result = await _fornecedorService.Remover(fornecedor.Id);
+            if(fornecedor is null) return NotFound();
 
-            return Ok(fornecedor); 
+            await _fornecedorService.Remover(fornecedor.Id);
+
+            return CustomResponse(); 
+        }
+
+        [HttpGet("obter-endereco{id:guid}")]
+        public async Task<EnderecoDto> ObterEndereoPorId(Guid id)
+        {
+            var enderecoDto = _mapper.Map<EnderecoDto>(await _enderecoRepository.ObterPorId(id));
+            return enderecoDto;
+        }
+
+        [HttpGet("atualizar-endereco{id:guid}")]
+        public async Task<IActionResult> AtualizarEndereco(Guid id, EnderecoDto enderecoDto)
+        {
+            if (id != enderecoDto.Id) return BadRequest();
+
+            if (!ModelState.IsValid) return CustomResponse(ModelState);
+
+            var endereco = _mapper.Map<Endereco>(enderecoDto);
+            await _fornecedorService.AtualizarEndereco(endereco);
+
+            return CustomResponse(enderecoDto);
         }
 
         public async Task<FornecedorDto> ObterFornecedorProdutosEndereco(Guid id)

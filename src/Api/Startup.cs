@@ -2,6 +2,7 @@ using Api.Configuration;
 using DevIO.Data.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,7 @@ namespace Api
             services.AddDbContext<MeuDbContext>(opts => opts.UseNpgsql(Configuration.GetConnectionString("Connection")));
             services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
+            services.Configure<ApiBehaviorOptions>(opt => {opt.SuppressModelStateInvalidFilter = true; });
             services.ResolveDependencies();
         }
 
