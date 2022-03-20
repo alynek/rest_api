@@ -23,6 +23,7 @@ namespace Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<MeuDbContext>(opts => opts.UseNpgsql(Configuration.GetConnectionString("Connection")));
+            services.AddIdentityConfiguration(Configuration);
             services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
             services.Configure<ApiBehaviorOptions>(opt => {opt.SuppressModelStateInvalidFilter = true; });
@@ -42,6 +43,8 @@ namespace Api
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
