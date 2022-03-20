@@ -1,8 +1,13 @@
-﻿using System;
+﻿using Api.Extensions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DevIO.Api.Dtos
 {
+    [ModelBinder(typeof(ProdutoModelBinder), Name = "produto")]
     public class ProdutoDto
     {
         [Key]
@@ -20,7 +25,8 @@ namespace DevIO.Api.Dtos
         [StringLength(1000, ErrorMessage = "O campo {0} precisa ter entre {2} e {1} caracteres", MinimumLength = 2)]
         public string Descricao { get; set; }
 
-        public string ImagemUpload { get; set; }
+        [JsonIgnore]
+        public IFormFile ImagemUpload { get; set; }
 
         public string Imagem { get; set; }
 

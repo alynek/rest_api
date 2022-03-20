@@ -1,7 +1,9 @@
-﻿using AutoMapper;
+﻿using Api.Extensions;
+using AutoMapper;
 using DevIO.Api.Dtos;
 using DevIO.Business.Intefaces;
 using DevIO.Business.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -40,12 +42,12 @@ namespace Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ProdutoDto>> Adicionar(ProdutoDto produtoDto)
+        public async Task<ActionResult<ProdutoDto>> Adicionar([ModelBinder(BinderType = typeof(ProdutoModelBinder))]  ProdutoDto produtoDto)
         {
             if (!ModelState.IsValid) return CustomResponse(ModelState);
 
-            var nomeDaImagem = Guid.NewGuid() + "_" + produtoDto.Imagem;
-            if (!UploadArquivo(produtoDto.ImagemUpload, nomeDaImagem))
+            var nomeDaImagem = Guid.NewGuid() + "_";
+            if (!await UploadArquivo(produtoDto.ImagemUpload, nomeDaImagem))
             {
                 return CustomResponse(produtoDto);
             }
@@ -73,17 +75,15 @@ namespace Api.Controllers
             return _mapper.Map<ProdutoDto>(await _produtoRepository.ObterProdutoFornecedor(id));
         }
 
-        private bool UploadArquivo(string arquivo, string imgNome)
+        private async Task<bool> UploadArquivo(IFormFile arquivo, string imgNome)
         {
-            if (string.IsNullOrEmpty(arquivo))
+            if (arquivo is null || arquivo.Length <= 0)
             {
                 NotificarErro("Forneça uma imagem para o produto!");
                 return false;
             }
 
-            var imageDataByteArray = Convert.FromBase64String(arquivo);
-
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imgNome);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imgNome + arquivo.FileName);
 
             if (System.IO.File.Exists(filePath))
             {
@@ -91,7 +91,10 @@ namespace Api.Controllers
                 return false;
             }
 
-            System.IO.File.WriteAllBytes(filePath, imageDataByteArray);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await arquivo.CopyToAsync(stream);
+            }
 
             return true;
         }
