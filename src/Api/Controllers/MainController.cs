@@ -39,7 +39,7 @@ namespace Api.Controllers
             var erros = modelState.Values.SelectMany(e => e.Errors);
             foreach (var erro in erros)
             {
-                var errorMsg = erro.Exception.Message ?? erro.ErrorMessage;
+                var errorMsg = erro.Exception?.Message ?? erro.ErrorMessage;
                 NotificarErro(errorMsg);
             }        
         }
