@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Api.Extensions;
 using AutoMapper;
 using DevIO.Api.Dtos;
 using DevIO.Business.Intefaces;
@@ -28,8 +29,7 @@ namespace Api.Controllers
             _enderecoRepository = enderecoRepository;
         }
 
-        
-        [AllowAnonymous]
+
         [HttpGet]
         public async Task<IEnumerable<FornecedorDto>> ObterTodos()
         {
@@ -46,6 +46,7 @@ namespace Api.Controllers
             return Ok(fornecedor);
         }
 
+        [ClaimsAuthorize("Fornecedor", "Adicionar")]
         [HttpPost]
         public async Task<ActionResult<FornecedorDto>> Adicionar(FornecedorDto fornecedorDto)
         {
@@ -57,6 +58,7 @@ namespace Api.Controllers
             return CustomResponse(fornecedorDto);
         }
 
+        [ClaimsAuthorize("Fornecedor", "Atualizar")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<FornecedorDto>> Atualizar(Guid id, FornecedorDto fornecedorDto)
         {
@@ -70,6 +72,7 @@ namespace Api.Controllers
             return CustomResponse(fornecedorDto); 
         }
 
+        [ClaimsAuthorize("Fornecedor", "Remover")]
         [HttpDelete]
         public async Task<ActionResult<FornecedorDto>> Remover(Guid id)
         {
@@ -89,6 +92,7 @@ namespace Api.Controllers
             return enderecoDto;
         }
 
+        [ClaimsAuthorize("Fornecedor", "Atualizar")]
         [HttpGet("atualizar-endereco{id:guid}")]
         public async Task<IActionResult> AtualizarEndereco(Guid id, EnderecoDto enderecoDto)
         {
@@ -102,7 +106,7 @@ namespace Api.Controllers
             return CustomResponse(enderecoDto);
         }
 
-        public async Task<FornecedorDto> ObterFornecedorProdutosEndereco(Guid id)
+        private async Task<FornecedorDto> ObterFornecedorProdutosEndereco(Guid id)
         {
             return _mapper.Map<FornecedorDto>(await _fornecedorRepository.ObterPorId(id));
         }
