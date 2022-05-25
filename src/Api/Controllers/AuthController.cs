@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,7 +21,8 @@ namespace Api.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly TokenJWT _tokenJWT;
         public AuthController(INotificador notificador, SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager, IOptions<TokenJWT> tokenJWT) : base(notificador)
+            UserManager<IdentityUser> userManager, IOptions<TokenJWT> tokenJWT,
+            IUser user) : base(notificador, user)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -79,7 +81,7 @@ namespace Api.Controllers
             return CustomResponse(login);
         }
 
-        private async Task<string> GerarJWT(string email)
+        private async Task<LoginResponseDto> GerarJWT(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
             var claims = await _userManager.GetClaimsAsync(user);
@@ -111,7 +113,18 @@ namespace Api.Controllers
             });
 
             var encodedToken = tokenHandler.WriteToken(token);
-            return encodedToken;
+
+            return new LoginResponseDto
+            {
+                AccessToken = encodedToken,
+                ExpiresIn = TimeSpan.FromHours(_tokenJWT.ExpiracaoHoras).TotalSeconds,
+                UserToken = new UserTokenDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Claims = claims.Select(c => new ClaimDto { Type = c.Type, Value = c.Value})
+                }
+            };
         }
 
         private static long ToUnixEpochDate(DateTime date)

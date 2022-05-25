@@ -21,7 +21,8 @@ namespace Api.Controllers
         private readonly IEnderecoRepository _enderecoRepository;
 
         public FornecedoresController(IFornecedorRepository fornecedorRepository, IMapper mapper,
-        IFornecedorService fornecedorService, IEnderecoRepository enderecoRepository, INotificador _notificador) : base(_notificador)
+        IFornecedorService fornecedorService, IEnderecoRepository enderecoRepository, INotificador _notificador,
+        IUser user) : base(_notificador, user)
         {
             _fornecedorRepository = fornecedorRepository;
             _mapper = mapper;
