@@ -24,9 +24,8 @@ namespace Api
         {
             services.AddDbContext<MeuDbContext>(opts => opts.UseNpgsql(Configuration.GetConnectionString("Connection")));
             services.AddIdentityConfiguration(Configuration);
-            services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
-            services.Configure<ApiBehaviorOptions>(opt => {opt.SuppressModelStateInvalidFilter = true; });
+            
             services.ResolveDependencies();
         }
 
@@ -35,10 +34,14 @@ namespace Api
         {
             if (env.IsDevelopment())
             {
+                app.UseCors("Development");
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
+            else
+            {
+                app.UseCors("Production");
+                app.UseHsts();
+            }
 
             app.UseRouting();
 

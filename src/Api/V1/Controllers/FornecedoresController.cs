@@ -9,10 +9,11 @@ using DevIO.Business.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers
+namespace Api.V1.Controllers
 {
     [Authorize]
-    [Route("api/fornecedores")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/fornecedores")]
     public class FornecedoresController : MainController
     {
         private readonly IFornecedorRepository _fornecedorRepository; 
@@ -30,7 +31,7 @@ namespace Api.Controllers
             _enderecoRepository = enderecoRepository;
         }
 
-
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IEnumerable<FornecedorDto>> ObterTodos()
         {

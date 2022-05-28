@@ -12,9 +12,10 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Controllers
+namespace Api.V1.Controllers
 {
-    [Route("api")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}")]
     public class AuthController : MainController
     {
         private readonly SignInManager<IdentityUser> _signInManager;
@@ -48,7 +49,7 @@ namespace Api.Controllers
                 await _signInManager.SignInAsync(user, false);
                 return CustomResponse(await GerarJWT(user.Email));
             }
-            foreach(var erro in result.Errors)
+            foreach (var erro in result.Errors)
             {
                 NotificarErro(erro.Description);
             }
@@ -93,7 +94,7 @@ namespace Api.Controllers
             claims.Add(new Claim(JwtRegisteredClaimNames.Nbf, ToUnixEpochDate(DateTime.UtcNow).ToString()));
             claims.Add(new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(DateTime.UtcNow).ToString(), ClaimValueTypes.Integer64));
 
-            foreach(var roles in userRoles)
+            foreach (var roles in userRoles)
             {
                 claims.Add(new Claim("role", roles));
             }
@@ -122,12 +123,12 @@ namespace Api.Controllers
                 {
                     Id = user.Id,
                     Email = user.Email,
-                    Claims = claims.Select(c => new ClaimDto { Type = c.Type, Value = c.Value})
+                    Claims = claims.Select(c => new ClaimDto { Type = c.Type, Value = c.Value })
                 }
             };
         }
 
         private static long ToUnixEpochDate(DateTime date)
-            => (long)Math.Round((date.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds); 
+            => (long)Math.Round((date.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds);
     }
 }
