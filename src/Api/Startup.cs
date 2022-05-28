@@ -25,7 +25,10 @@ namespace Api
             services.AddDbContext<MeuDbContext>(opts => opts.UseNpgsql(Configuration.GetConnectionString("Connection")));
             services.AddIdentityConfiguration(Configuration);
             services.AddAutoMapper(typeof(Startup));
-            
+
+            services.AddApiConfig();
+
+
             services.ResolveDependencies();
         }
 
@@ -42,6 +45,8 @@ namespace Api
                 app.UseCors("Production");
                 app.UseHsts();
             }
+
+            app.UseApiConfig(env);
 
             app.UseRouting();
 
