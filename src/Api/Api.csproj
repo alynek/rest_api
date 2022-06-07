@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="Elmah.Io.AspNetCore" Version="4.1.37" />
+    <PackageReference Include="elmah.io.extensions.logging" Version="4.1.28" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.18" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.11" />
 	  <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.11" />
